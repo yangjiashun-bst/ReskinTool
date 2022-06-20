@@ -1,18 +1,13 @@
-# Ant Design Pro
-
-This project is initialized with [Ant Design Pro](https://pro.ant.design). Follow is the quick guide for how to use.
 
 ## Environment Prepare
 
 Install `node_modules`:
 
 ```bash
-npm install
+yarn
 ```
-
-or
-
 ```bash
+cd electron
 yarn
 ```
 
@@ -25,31 +20,37 @@ Scripts provided in `package.json`. It's safe to modify or add additional script
 ### Start project
 
 ```bash
-npm start
+yarn start
 ```
-
+```bash
+cd electron 
+yarn run electron-start
+```
 ### Build project
 
 ```bash
-npm run build
+yarn run build
 ```
-
+```bash
+cd electron 
+yarn run electron-package
+```
 ### Check code style
 
 ```bash
-npm run lint
+yarn run lint
 ```
 
 You can also use script to auto fix some lint error:
 
 ```bash
-npm run lint:fix
+yarn run lint:fix
 ```
 
 ### Test code
 
 ```bash
-npm test
+yarn test
 ```
 
 ## More
