@@ -6,7 +6,7 @@ import {
 import {getFileNameAndSuffix, getUUID} from "@/utils/utils";
 class PreviewImageItem extends React.PureComponent{
   render() {
-    const {path,onClick} = this.props
+    const {path,onClick,isGLB,isNotEdit} = this.props
     const imageId = getFileNameAndSuffix(path)
     return(
       <Col span={11} style={{marginTop:5}}>
@@ -18,7 +18,8 @@ class PreviewImageItem extends React.PureComponent{
                 height:90,
                 objectFit:"contain"
               }}
-              src={"file:///"+path}
+
+              src={isGLB?"/glb_logo.png":"file:///"+path}
             />
           </Col>
           <Col span={24}>
@@ -26,12 +27,13 @@ class PreviewImageItem extends React.PureComponent{
             tooltip: `${imageId}`
             }}>{imageId}</Typography.Text></Radio>
           </Col>
-          <Col span={24}>
-                  <Button type="primary" onClick={()=>{
-                    onClick(path)
-                  }} icon={<EditOutlined />} size="small">Edit</Button>
-          </Col>
-
+          {isNotEdit?"":(
+            <Col span={24}>
+              <Button type="primary" onClick={()=>{
+                onClick(path)
+              }} icon={<EditOutlined />} size="small">Edit</Button>
+            </Col>
+          )}
         </Row>
       </Col>
 

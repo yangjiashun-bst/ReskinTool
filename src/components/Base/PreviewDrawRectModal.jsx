@@ -6,14 +6,11 @@ import {MODAL_HEIGHT, MODAL_WIDTH} from "@/utils/globalConst";
 import {DeleteOutlined} from "@ant-design/icons";
 import styles from './index.less'
 
-const formLayout = {
-  labelCol: {span: 3},
-  wrapperCol: {span: 5},
-};
 
 class PreviewDrawRectModal extends React.PureComponent {
   formRef = React.createRef()
   formJSONRef = React.createRef()
+
   constructor(props) {
     super(props);
     this.state = ({
@@ -43,6 +40,10 @@ class PreviewDrawRectModal extends React.PureComponent {
     this.setState({
       status: "add_json"
     })
+    // const {areaList} = this.state
+    // this.formJSONRef.current.setFieldsValue({
+    //   json:JSON.stringify(areaList)
+    // })
   }
   handleAddClick = () => {
     this.setState({
@@ -50,8 +51,8 @@ class PreviewDrawRectModal extends React.PureComponent {
     })
   }
   handleCompleteClick = () => {
-    let {areaList,status} = this.state
-    if(status === "add") {
+    let {areaList, status} = this.state
+    if (status === "add") {
       this.formRef.current.validateFields().then(values => {
         areaList.push({
           x: parseInt(values.x),
@@ -68,20 +69,20 @@ class PreviewDrawRectModal extends React.PureComponent {
       }).catch(info => {
         console.log("err", info)
       })
-    } else if(status === "add_json") {
-      this.formJSONRef.current.validateFields().then(values=>{
-        console.log("values",values)
+    } else if (status === "add_json") {
+      this.formJSONRef.current.validateFields().then(values => {
+        console.log("values", values)
         const {json} = values
-          if(isJSON(json)) {
-             areaList = JSON.parse(json);
-            this.setState({
-              status: "completed",
-              areaList
-            })
-          } else {
-            message.error("json format error")
-          }
-      }).catch(info=>{
+        if (isJSON(json)) {
+          areaList = JSON.parse(json);
+          this.setState({
+            status: "completed",
+            areaList
+          })
+        } else {
+          message.error("json format error")
+        }
+      }).catch(info => {
         console.log("err", info)
       })
     }
@@ -111,8 +112,8 @@ class PreviewDrawRectModal extends React.PureComponent {
     onOk(imageId, areaList)
   }
   getStatusEle = () => {
-    const {status,area} = this.state
-    if(status === "add") {
+    const {status, area, areaList} = this.state
+    if (status === "add") {
       return (
         <Row style={{marginTop: 10}}>
           <Form
@@ -170,27 +171,30 @@ class PreviewDrawRectModal extends React.PureComponent {
           </Form>
         </Row>
       )
-    } else if(status === "add_json") {
-        return (
-          <Row style={{marginTop: 10}}>
-            <Form
-              ref={this.formJSONRef}>
-              <Row>
-                <Col span={24}>
-                  <Form.Item
-                    label="JSON:"
-                    rules={[{required: true, message: "Please input JSON!"}]}
-                    name="json">
-                    <Input.TextArea autoSize={{
-                      minRows:7,
-                      maxRows:14
+    } else if (status === "add_json") {
+      return (
+        <Row style={{marginTop: 10}}>
+          <Form
+            ref={this.formJSONRef}
+            initialValues={areaList && areaList.length > 0 ? {json: JSON.stringify(areaList)} : ""}>
+            <Row>
+              <Col span={24}>
+                <Form.Item
+                  label="JSON:"
+                  rules={[{required: true, message: "Please input JSON!"}]}
+                  name="json">
+                  <Input.TextArea
+                    placeholder={`JSON format:[{\"x\":100,\"y\":100,\"w\":50,\"h\":50}]`}
+                    autoSize={{
+                      minRows: 7,
+                      maxRows: 14
                     }}/>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Form>
-          </Row>
-        )
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Row>
+      )
     }
   }
 
@@ -217,7 +221,8 @@ class PreviewDrawRectModal extends React.PureComponent {
                 <Typography.Text>Please click &apos;Add&apos; to select the config area.</Typography.Text>
                 <Row style={{marginBottom: 10}}>
 
-                  <Button type="primary" onClick={this.handleAddClick} shape="round" size={"small"} style={{marginLeft: 10}}>Add</Button>
+                  <Button type="primary" onClick={this.handleAddClick} shape="round" size={"small"}
+                          style={{marginLeft: 10}}>Add</Button>
                   <Button type="primary" onClick={this.handleCompleteClick} shape="round" size={"small"}
                           style={{marginLeft: 10}}>Complete</Button>
                 </Row>
@@ -241,8 +246,10 @@ class PreviewDrawRectModal extends React.PureComponent {
                   position: "absolute",
                   bottom: 10,
                 }}>
-                  <Button type="primary" shape="round" onClick={this.handleAddJSONClick} style={{marginTop: 10,marginLeft:10}}>Add JSON</Button>
-                  <Button type="primary" shape="round" onClick={this.handleOnOk} style={{marginTop: 10,marginLeft:10}}>Save</Button>
+                  <Button type="primary" shape="round" onClick={this.handleAddJSONClick}
+                          style={{marginTop: 10, marginLeft: 10}}>Add JSON</Button>
+                  <Button type="primary" shape="round" onClick={this.handleOnOk}
+                          style={{marginTop: 10, marginLeft: 10}}>Save</Button>
                 </Row>
               </Col>
               <Col span={18}>

@@ -1,5 +1,3 @@
-import {IS_DEBUG} from "./globalConst";
-
 export const getUUID = () => {
   return Math.random().toString(36).substring(3, 19)
 }
@@ -72,19 +70,19 @@ export const isBackgroundImg = (imgId: string) => {
   return false
 }
 
-export const log = (obj) => {
-    if(IS_DEBUG) {
-      console.log(obj)
+
+export const isJSON = (str: string) => {
+  try {
+    const obj = JSON.parse(str);
+    if (typeof obj === "object" && obj) {
+      return true
     }
+  } catch (e) {
+    console.log("err:", e);
+  }
+  return false
 }
-export const isJSON = (str:string) => {
-    try {
-       const obj = JSON.parse(str);
-       if(typeof obj === "object" && obj) {
-         return true
-       }
-    }catch (e) {
-      console.log("err:",e);
-    }
-    return false
+export const isDev = () => {
+  const {NODE_ENV} = process.env;
+  return NODE_ENV === "development";
 }

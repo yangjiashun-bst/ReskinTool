@@ -1,8 +1,7 @@
 import React from "react"
-import {Checkbox, Col, Image, Row,Typography,Button} from "antd";
+import {Col, Image, Row,Typography,Button} from "antd";
 import {
-  DeleteOutlined,
-  EditOutlined
+  DeleteOutlined
 } from '@ant-design/icons';
 import {getUUID} from "@/utils/utils";
 class SelectImageItem extends React.PureComponent{

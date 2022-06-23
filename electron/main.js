@@ -1,32 +1,34 @@
-const { app, BrowserWindow,ipcMain,dialog } = require('electron')
+const {app, BrowserWindow, ipcMain, dialog} = require('electron')
 const path = require('path')
 const fs = require("fs")
 const imagesizeof = require("image-size")
 
 const httpServer = require("http-server")
-const { APP_ENV } = process.env;
-function getFileNameAndSuffix(path){
+const {APP_ENV} = process.env;
+
+function getFileNameAndSuffix(path) {
   let pos = path.lastIndexOf("\\");
-  if( pos !== -1) {
-    return path.substring(pos+1)
+  if (pos !== -1) {
+    return path.substring(pos + 1)
   }
   return "";
 }
-function getFileName(path){
+
+function getFileName(path) {
   let startPos = path.lastIndexOf("\\");
   let endPos = path.lastIndexOf(".");
-  if( startPos !== -1) {
-    return path.substring(startPos+1,endPos)
+  if (startPos !== -1) {
+    return path.substring(startPos + 1, endPos)
   }
   return "";
 }
 
 async function removeDir(path) {
   const files = fs.readdirSync(path)
-  files.forEach(file=>{
+  files.forEach(file => {
     const filePath = `${path}/${file}`;
     const stats = fs.statSync(filePath);
-    if(stats.isDirectory()) {
+    if (stats.isDirectory()) {
       removeDir(filePath)
     } else {
       fs.unlinkSync(filePath)
@@ -35,26 +37,25 @@ async function removeDir(path) {
 }
 
 async function handleBrowseDir() {
-  console.log("env",APP_ENV);
   const {canceled, filePaths} = await dialog.showOpenDialog({
-    properties:["openDirectory"]
+    properties: ["openDirectory"]
   })
-  if(canceled) {
+  if (canceled) {
     return false;
   } else {
     return filePaths[0];
   }
 }
-function getDirFile(path)
-{
+
+function getDirFile(path) {
   const stat = fs.statSync(path)
   let result = []
-  if(stat.isDirectory()) {
+  if (stat.isDirectory()) {
     const dir = fs.readdirSync(path)
-    for(let i=0;i<dir.length;i++) {
-      const newPath = path+"\\"+dir[i]
+    for (let i = 0; i < dir.length; i++) {
+      const newPath = path + "\\" + dir[i]
       const tempPathList = getDirFile(newPath)
-      if(tempPathList.length > 0) {
+      if (tempPathList.length > 0) {
         result = result.concat(tempPathList)
       }
     }
@@ -63,74 +64,80 @@ function getDirFile(path)
     return [path]
   }
 }
-async function handleDirFile(event,path) {
 
-  if(fs.existsSync(path)) {
+async function handleDirFile(event, path) {
+
+  if (fs.existsSync(path)) {
     return getDirFile(path)
   }
   return false;
 }
 
-async function handleReadImageInfo(event,path) {
+async function handleReadImageInfo(event, path) {
 
-  if(fs.existsSync(path)) {
+  if (fs.existsSync(path)) {
     return imagesizeof(path)
   }
   return false;
 }
-async function handleReadFile(event,path) {
 
-  if(fs.existsSync(path))
-    return fs.readFileSync(path,{encoding:"utf-8"})
+async function handleReadFile(event, path) {
+
+  if (fs.existsSync(path))
+    return fs.readFileSync(path, {encoding: "utf-8"})
   return false
 }
-async function handeSaveFile(event,path,content) {
 
-  fs.writeFileSync(path,content)
+async function handeSaveFile(event, path, content) {
+
+  fs.writeFileSync(path, content)
   return true
 }
-async function handleCreateZip(event,path,content) {
+
+async function handleCreateZip(event, path, content) {
   const json = JSON.parse(content)
-  const dirPath = path+"\\reskin_res\\"
-  if(!fs.existsSync(dirPath)) {
+  const dirPath = path + "\\reskin_res\\"
+  if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath)
   } else {
     await removeDir(dirPath)
   }
-  await  handeSaveFile(event,dirPath+"texturemap.cfg",content)
+  await handeSaveFile(event, dirPath + "texturemap.cfg", content)
   const {images} = json
-  if(images&&images.length > 0) {
+  if (images && images.length > 0) {
     const files = getDirFile(path)
-    images.forEach(image=>{
-      const {imageId,previewUrl} = image
-      files.map(file=>{
+    images.forEach(image => {
+      const {imageId, previewUrl, glbUrl, coverUrl} = image
+      files.map(file => {
         const fileName = getFileName(file)
         const fileNameAndSuffix = getFileNameAndSuffix(file)
-        if(fileName === imageId || previewUrl === fileNameAndSuffix) {
-          fs.copyFileSync(file,dirPath+fileNameAndSuffix)
-        }
-        if(previewUrl === fileNameAndSuffix && !fs.existsSync(dirPath+fileNameAndSuffix)) {
-          fs.copyFileSync(file,dirPath+fileNameAndSuffix)
+        if (!fs.existsSync(dirPath + fileNameAndSuffix)) {
+          if (fileName === imageId ||
+            previewUrl === fileNameAndSuffix ||
+            (glbUrl && glbUrl === fileNameAndSuffix) ||
+            (coverUrl && coverUrl === fileNameAndSuffix)) {
+            fs.copyFileSync(file, dirPath + fileNameAndSuffix)
+          }
         }
       })
     })
   }
 
 }
-function createWindow () {
-  console.log("env",APP_ENV);
-  if(APP_ENV !== "dev") {
-    httpServer.createServer({root:path.join(__dirname,"./dist")}).listen(8000)
+
+function createWindow() {
+  if (APP_ENV !== "dev") {
+    httpServer.createServer({root: path.join(__dirname, "./dist")}).listen(8000)
   }
 
   const win = new BrowserWindow({
     width: 1250,
     height: 950,
     webPreferences: {
-      webSecurity:false,
+      webSecurity: false,
       preload: path.join(__dirname, 'preload.js')
     },
-    autoHideMenuBar:APP_ENV !== "dev"
+    autoHideMenuBar: APP_ENV !== "dev"
   })
   ipcMain.on('set-title', (event, title) => {
     const webContents = event.sender
@@ -142,12 +149,12 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
-  ipcMain.handle("browseDir",handleBrowseDir)
-  ipcMain.handle("readFile",handleReadFile)
-  ipcMain.handle("readDir",handleDirFile)
-  ipcMain.handle("readImageInfo",handleReadImageInfo)
-  ipcMain.handle("saveFile",handeSaveFile)
-  ipcMain.handle("createZip",handleCreateZip)
+  ipcMain.handle("browseDir", handleBrowseDir)
+  ipcMain.handle("readFile", handleReadFile)
+  ipcMain.handle("readDir", handleDirFile)
+  ipcMain.handle("readImageInfo", handleReadImageInfo)
+  ipcMain.handle("saveFile", handeSaveFile)
+  ipcMain.handle("createZip", handleCreateZip)
 
   createWindow()
 

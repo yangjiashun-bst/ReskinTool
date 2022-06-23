@@ -5,5 +5,4 @@ export const CANVAS_WIDTH = 740
 export const CANVAS_HEIGHT = MODAL_HEIGHT
 export const MODAL_CONTENT_HEIGHT = 550
 
-export const IS_DEBUG = false
 
