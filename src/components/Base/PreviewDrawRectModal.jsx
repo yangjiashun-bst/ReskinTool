@@ -40,10 +40,6 @@ class PreviewDrawRectModal extends React.PureComponent {
     this.setState({
       status: "add_json"
     })
-    // const {areaList} = this.state
-    // this.formJSONRef.current.setFieldsValue({
-    //   json:JSON.stringify(areaList)
-    // })
   }
   handleAddClick = () => {
     this.setState({
@@ -98,7 +94,6 @@ class PreviewDrawRectModal extends React.PureComponent {
   }
 
   handleOnOk = () => {
-
     const {areaList, path} = this.state
     const {onOk} = this.props
     if (!areaList || areaList.length === 0) {

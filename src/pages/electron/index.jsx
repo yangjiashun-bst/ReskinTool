@@ -289,6 +289,8 @@ export default class Index extends React.PureComponent {
         return true
       })
     })
+    const groupMap = {};
+    const groupPreviewConfig = {};
 
     for (let i = 0; i < resultImageList.length; i++) {
       let item = resultImageList[i]
@@ -317,24 +319,54 @@ export default class Index extends React.PureComponent {
         previewConfig = this.previewConfig[imageId];
         previewConfig = {
           ...previewConfig,
-          "previewConfig": {"srcHeight": maxH, "srcWidth": maxW, "position": [...previewConfig.previewConfig.position]}
+          "previewConfig": {"srcHeight": maxH, "srcWidth": maxW,  "position": [...previewConfig.previewConfig.position]}
         }
       } else {
         previewConfig = {"previewConfig": {"srcHeight": maxH, "srcWidth": maxW}}
       }
+      if(item.hasOwnProperty("previewConfig")){
+         if(item.previewConfig.hasOwnProperty("path")){
+           previewConfig.previewConfig.path = item.previewConfig.path;
+         }
+        if(item.previewConfig.hasOwnProperty("srcHeight")){
+          previewConfig.previewConfig.srcHeight = item.previewConfig.srcHeight;
+        }
+        if(item.previewConfig.hasOwnProperty("srcWidth")){
+          previewConfig.previewConfig.srcWidth = item.previewConfig.srcWidth;
+        }
+      }
+
+      if(item.hasOwnProperty("groupId")){
+        if(!groupMap.hasOwnProperty(item.groupId))
+        {
+          groupMap[item.groupId] = {groupId:item.groupId,coverUrl:item.coverUrl,previewUrl:item.previewUrl,category:item.category,
+            mapType:item.mapType}
+        }
+        if(!groupPreviewConfig.hasOwnProperty(item.groupId)){
+          groupPreviewConfig[item.groupId] = [{...previewConfig.previewConfig,"imageId":item.imageId}];
+        } else {
+          groupPreviewConfig[item.groupId].push({...previewConfig.previewConfig,"imageId":item.imageId});
+        }
+      }
+
       item = {...item, ...previewConfig}
       resultImageList[i] = item;
     }
     const path = fileDir;
     const updateTimestamp = moment().valueOf()
+    const groups = []
+    Object.keys(groupMap).forEach(key=>{
+        groups.push({...groupMap[key],previewConfig:groupPreviewConfig[key]})
+    })
+
     window.electronAPI.createZip(path, JSON.stringify({
       "images": resultImageList,
+      groups,
       "metaData": {"ParserVersion": 0, "UpdateTimestamp": updateTimestamp}
     }))
     message.success("Save config file in " + path + "\\reskin_res")
   }
   handlePreviewOnOk = (imageId, previewUrl, areaList) => {
-
     this.previewConfig[imageId] = {
       previewUrl,
       "previewConfig": {
@@ -499,12 +531,12 @@ export default class Index extends React.PureComponent {
               bottom: 1
             }}>
               <Button type={"primary"} shape={"round"} onClick={this.handleEditPreviewClick}>Edit Preview</Button>
-              <Button type={"primary"} shape={"round"} style={{marginLeft: 50}} onClick={this.handleEditGLBClick}>Edit
-                GLB</Button>
+              {/*<Button type={"primary"} shape={"round"} style={{marginLeft: 50}} onClick={this.handleEditGLBClick}>Edit*/}
+              {/*  GLB</Button>*/}
               <Button type={"primary"} shape={"round"} style={{marginLeft: 50}} onClick={this.handleEditCoverClick}>Edit
                 Cover</Button>
-              <Button type={"primary"} shape={"round"} style={{marginLeft: 50}} onClick={this.handleSetCategoryClick}>Set
-                Category</Button>
+              {/*<Button type={"primary"} shape={"round"} style={{marginLeft: 50}} onClick={this.handleSetCategoryClick}>Set*/}
+              {/*  Category</Button>*/}
               <Button type={"primary"} shape={"round"} style={{marginLeft: 50}} onClick={this.handleSaveFile}>Save
                 File</Button>
 
@@ -525,7 +557,6 @@ export default class Index extends React.PureComponent {
           onOk={this.handleGLBOnOk}
           selectImageIdList={this.selectImageIdList}
           dirFileList={dirFileList}
-          isGLB={true}
           type={"GLB"}
           isNotEdit={true}
         />

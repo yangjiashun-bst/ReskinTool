@@ -63,11 +63,7 @@ export const transCanvasAreaToImage = (srcArea, srcSize, dstSize) => {
 }
 
 export const isBackgroundImg = (imgId: string) => {
-
-  if (imgId.endsWith("_bg")) {
-    return true
-  }
-  return false
+  return imgId.endsWith("_bg");
 }
 
 
@@ -85,4 +81,7 @@ export const isJSON = (str: string) => {
 export const isDev = () => {
   const {NODE_ENV} = process.env;
   return NODE_ENV === "development";
+}
+export const isGLBFile = (path:string) => {
+   return path.endsWith(".glb");
 }

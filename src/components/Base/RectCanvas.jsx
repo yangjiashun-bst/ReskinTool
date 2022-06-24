@@ -96,7 +96,6 @@ class RectCanvas extends React.PureComponent {
   }
 
   handleMouseMove = (e) => {
-    //console.log("handleMouseMove...",e.evt)
     const {isDownFlag, startPoint, imageInfo} = this.state
     if (!isDownFlag) return
     const stage = e.target.getStage();
@@ -113,7 +112,6 @@ class RectCanvas extends React.PureComponent {
 
   }
   handleMouseUp = (e) => {
-    // console.log("handleMouseUp...")
     this.setState({
       isDownFlag: false,
     })

@@ -1,13 +1,14 @@
 import React from "react"
 import {Checkbox, Col, Image, Row, Typography, Button, Radio} from "antd";
 import {
-  EditOutlined, PlusOutlined
+  EditOutlined
 } from '@ant-design/icons';
-import {getFileNameAndSuffix, getUUID} from "@/utils/utils";
+import {getFileNameAndSuffix, isGLBFile} from "@/utils/utils";
 class PreviewImageItem extends React.PureComponent{
   render() {
-    const {path,onClick,isGLB,isNotEdit} = this.props
+    const {path,onClick,isNotEdit} = this.props
     const imageId = getFileNameAndSuffix(path)
+    const isGLB = isGLBFile(path);
     return(
       <Col span={11} style={{marginTop:5}}>
         <Row gutter={[2,5]}>
@@ -27,7 +28,7 @@ class PreviewImageItem extends React.PureComponent{
             tooltip: `${imageId}`
             }}>{imageId}</Typography.Text></Radio>
           </Col>
-          {isNotEdit?"":(
+          {isNotEdit||isGLB?"":(
             <Col span={24}>
               <Button type="primary" onClick={()=>{
                 onClick(path)

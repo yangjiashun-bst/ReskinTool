@@ -2,9 +2,9 @@ const {app, BrowserWindow, ipcMain, dialog} = require('electron')
 const path = require('path')
 const fs = require("fs")
 const imagesizeof = require("image-size")
-
 const httpServer = require("http-server")
 const {APP_ENV} = process.env;
+const RES_DIR = "reskin_res";
 
 function getFileNameAndSuffix(path) {
   let pos = path.lastIndexOf("\\");
@@ -53,6 +53,8 @@ function getDirFile(path) {
   if (stat.isDirectory()) {
     const dir = fs.readdirSync(path)
     for (let i = 0; i < dir.length; i++) {
+      if(dir[i] === RES_DIR)
+          continue;
       const newPath = path + "\\" + dir[i]
       const tempPathList = getDirFile(newPath)
       if (tempPathList.length > 0) {
@@ -96,7 +98,7 @@ async function handeSaveFile(event, path, content) {
 
 async function handleCreateZip(event, path, content) {
   const json = JSON.parse(content)
-  const dirPath = path + "\\reskin_res\\"
+  const dirPath = path + "\\"+RES_DIR+"\\"
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath)
   } else {
